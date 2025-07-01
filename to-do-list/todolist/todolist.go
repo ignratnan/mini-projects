@@ -1,4 +1,4 @@
-package main
+package todolist1
 
 import (
 	"bufio"
@@ -96,6 +96,7 @@ func show_task() {
 		//show task view
 		fmt.Println("==============================")
 		fmt.Println("----------TO-DO LIST----------")
+		fmt.Println("*Note: input 'back' to back to Main Menu")
 		fmt.Println("*Show task")
 		fmt.Println("---")
 		if len(task_list) == 0 {
