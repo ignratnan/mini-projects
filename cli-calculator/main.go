@@ -26,7 +26,7 @@ func roundFloat(val float64, precision uint) float64 {
 	return math.Round(val*ratio) / ratio
 }
 
-func calculate() {
+func Main() {
 	//Variable description
 	var first_num float64
 	var second_num float64
