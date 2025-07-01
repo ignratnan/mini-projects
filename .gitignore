@@ -1,0 +1,34 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+# for VSCode extensions, see https://github.com/microsoft/vscode-go/wiki/Go-for-VS-Code-FAQ#how-do-i-exclude-go-workspace-build-cache-and-test-cache-from-git
+__debug_bin
+*.test
+*.prof
+
+# Dependency directories
+vendor/
+
+# Go module cache and build cache
+# Set by 'go env GOPATH', often '~/go'
+# Module download cache
+# https://go.dev/ref/mod#module-cache
+# For CI/CD environments, it may be beneficial to cache this dir
+# rather than download it again for each build
+#
+# Note: go.mod and go.sum MUST be committed to VCS.
+pkg/
+# If using build cache
+# $GOBIN (defaults to $GOPATH/bin) and $GOCACHE (defaults to $GOPATH/pkg/mod)
+# are usually outside the module.
+# Check your Go environment: `go env GOCACHE`
+
+# IDE and editor specific files
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
