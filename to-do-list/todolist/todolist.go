@@ -1,4 +1,4 @@
-package todolist1
+package todolist
 
 import (
 	"bufio"
@@ -48,6 +48,8 @@ func main_view() {
 		//main view
 		fmt.Println("==============================")
 		fmt.Println("----------TO-DO LIST----------")
+		fmt.Println("==============================")
+		fmt.Println("---")
 		fmt.Println("*Main menu")
 		fmt.Println("---")
 		fmt.Println("1. Show Task")
@@ -96,7 +98,9 @@ func show_task() {
 		//show task view
 		fmt.Println("==============================")
 		fmt.Println("----------TO-DO LIST----------")
-		fmt.Println("*Note: input 'back' to back to Main Menu")
+		fmt.Println("==============================")
+		fmt.Println("*Note: input 'back' to move to Main Menu")
+		fmt.Println("---")
 		fmt.Println("*Show task")
 		fmt.Println("---")
 		if len(task_list) == 0 {
@@ -160,6 +164,9 @@ func add_task() {
 		//input task view
 		fmt.Println("==============================")
 		fmt.Println("----------TO-DO LIST----------")
+		fmt.Println("==============================")
+		fmt.Println("*Note: input 'back' to move to Main Menu")
+		fmt.Println("---")
 		fmt.Println("*Add task")
 		fmt.Println("---")
 		if len(task_list) == 0 {
@@ -196,6 +203,9 @@ func edit_task() {
 		//edit task view
 		fmt.Println("==============================")
 		fmt.Println("----------TO-DO LIST----------")
+		fmt.Println("==============================")
+		fmt.Println("*Note: input 'back' to move to Main Menu")
+		fmt.Println("---")
 		fmt.Println("*Edit task")
 		fmt.Println("---")
 		if len(task_list) == 0 {
@@ -238,6 +248,9 @@ func delete_task() {
 		//delete task view
 		fmt.Println("==============================")
 		fmt.Println("----------TO-DO LIST----------")
+		fmt.Println("==============================")
+		fmt.Println("*Note: input 'back' to move to Main Menu")
+		fmt.Println("---")
 		fmt.Println("*Delete task")
 		fmt.Println("---")
 		if len(task_list) == 0 {
