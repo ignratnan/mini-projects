@@ -6,59 +6,73 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
 var employee []Employee
-var folderpath string = "files"
+var employee_input []Employee
+var employee_update []Employee
+var folderpath string = "json-files"
 var filename string = "employee.json"
 
 type Employee struct {
-	Name      string `json: "name"`
-	Email     string `json: "email"`
-	DateBirth string `json: "date_birth"`
-	Phone     string `json: "phone"`
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	DateBirth string `json:"date_birth"`
+	Phone     string `json:"phone"`
 }
 
-func writeJson(folderpath string, filename string, data Employee) error {
+func writeJson(folderpath string, filename string, data interface{}) error {
 	fullpath := filepath.Join(folderpath, filename)
-	fmt.Printf("Saving the data to %s file", filename)
 
 	jsonData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		return fmt.Errorf("Failed to Marshal the data: %w", err)
+		return fmt.Errorf("failed to marshal the data: %w", err)
 	}
 
 	err = os.WriteFile(fullpath, jsonData, 0644)
 	if err != nil {
-		return fmt.Errorf("Failed to write the file: %w", err)
+		return fmt.Errorf("failed to write the file: %w", err)
 	}
 
-	fmt.Println("The data written to %s successfully.", filename)
 	return nil
 }
 
-func readJson(folderpath string, filename string) (Employee, error) {
+func readJson(folderpath string, filename string, target interface{}) error {
 	fullpath := filepath.Join(folderpath, filename)
-	var loadEmployee Employee
-
-	fmt.Printf("Reading the data from %s file", filename)
 
 	jsonData, err := os.ReadFile(fullpath)
 	if err != nil {
-		return loadEmployee, fmt.Errorf("Failed to read the file: %w", err)
+		return fmt.Errorf("failed to read the file: %w", err)
 	}
 
-	err = json.Unmarshal(jsonData, &loadEmployee)
+	err = json.Unmarshal(jsonData, target)
 	if err != nil {
-		return loadEmployee, fmt.Errorf("Failed to Unmarshal the data: %w", err)
+		return fmt.Errorf("failed to unmarshal the data: %w", err)
 	}
 
-	fmt.Println("The data loaded from %s successfully.", filename)
-	return loadEmployee, nil
+	return nil
 }
 
-func inputData() {
+func numInput(text string) int {
+	num_input := ""
+	reader := bufio.NewReader(os.Stdin)
+
+	fmt.Print(text)
+	num_input, err := reader.ReadString('\n')
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+	}
+	num_input = strings.TrimSpace(num_input)
+	num_int, err := strconv.Atoi(num_input)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+	}
+	return num_int
+}
+
+func inputData() Employee {
 	name := ""
 	email := ""
 	date_birth := ""
@@ -89,13 +103,66 @@ func inputData() {
 		Phone:     phone,
 	}
 
-	writeJson(folderpath, filename, employee_ref)
-
-	employee = append(employee, employee_ref)
+	return employee_ref
 }
 
-func mainMenu() string {
+func writeData(employee_ref Employee) {
+	employee_input = append(employee_input, employee_ref)
+
+	employee = employee_input
+
+	err := writeJson(folderpath, filename, employee)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+	}
+}
+
+func showData() {
+	fmt.Printf("The employee data from '%s' file:\n", filename)
+	number := 1
+	for _, emp := range employee {
+		fmt.Printf("%d.\tEmployee Name: %s, Email: %s, Date of Birth: %s, Phone: %s\n", number, emp.Name, emp.Email, emp.DateBirth, emp.Phone)
+		number++
+	}
+}
+
+func updateData(num_int int, emp_update Employee) []Employee {
+	employee_update = nil
+	number := 1
+	readJson(folderpath, filename, &employee)
+	for _, emp := range employee {
+		if number == num_int {
+			employee_update = append(employee_update, emp_update)
+		} else {
+			employee_update = append(employee_update, emp)
+		}
+		number++
+	}
+
+	employee = employee_update
+	return employee
+}
+
+func deleteData(num_int int) []Employee {
+	employee_update = nil
+	number := 1
+	readJson(folderpath, filename, &employee)
+	for _, emp := range employee {
+		if number != num_int {
+			employee_update = append(employee_update, emp)
+		}
+		number++
+	}
+
+	employee = employee_update
+	return employee
+}
+
+func mainMenu() {
+	action := ""
+
 	reader := bufio.NewReader(os.Stdin)
+	fmt.Println("######################################################################")
 	fmt.Println("Employee Management System")
 	fmt.Println("---")
 	fmt.Println("*Main Menu")
@@ -108,50 +175,104 @@ func mainMenu() string {
 	fmt.Println("5. Exit")
 	fmt.Println("---")
 	fmt.Print("Please input your option: ")
-	action, _ := reader.ReadString('\n')
+	action, _ = reader.ReadString('\n')
 	action = strings.TrimSpace(action)
 
-	return action
-}
-
-func inputMenu() {
-	fmt.Println("Employee Management System")
-	fmt.Println("---")
-	fmt.Println("*Input Menu")
-	fmt.Println("---")
-	inputData()
-}
-
-func showMenu() {
-	fmt.Println("Employee Management System")
-	fmt.Println("---")
-	fmt.Println("*Show Menu")
-	fmt.Println("---")
-
-}
-
-func updateMenu() {
-	fmt.Println("Employee Management System")
-	fmt.Println("---")
-	fmt.Println("*Update Menu")
-	fmt.Println("---")
-
-}
-
-func deleteMenu() {
-	fmt.Println("Employee Management System")
-	fmt.Println("---")
-	fmt.Println("*Delete Menu")
-	fmt.Println("---")
-
-}
-
-func Project() {
-	action := mainMenu()
 	switch action {
 	case "1":
 		inputMenu()
 	case "2":
 		showMenu()
+	case "3":
+		updateMenu()
+	case "4":
+		deleteMenu()
+	case "5":
+		fmt.Println("Exiting the program")
 	}
+}
+
+func inputMenu() {
+	fmt.Println("######################################################################")
+	fmt.Println("Employee Management System")
+	fmt.Println("---")
+	fmt.Println("*Input Menu")
+	fmt.Println("---")
+	readJson(folderpath, filename, &employee_input)
+	emp_input := inputData()
+	writeData(emp_input)
+	mainMenu()
+}
+
+func showMenu() {
+	fmt.Println("######################################################################")
+	fmt.Println("Employee Management System")
+	fmt.Println("---")
+	fmt.Println("*Show Menu")
+	fmt.Println("---")
+	readJson(folderpath, filename, &employee)
+	if employee != nil {
+		showData()
+	} else {
+		fmt.Println("No data available")
+	}
+	fmt.Println("---")
+	fmt.Print("Click enter to back to Main Menu")
+	reader := bufio.NewReader(os.Stdin)
+	reader.ReadString('\n')
+	mainMenu()
+}
+
+func updateMenu() {
+	fmt.Println("######################################################################")
+	fmt.Println("Employee Management System")
+	fmt.Println("---")
+	fmt.Println("*Update Menu")
+	fmt.Println("---")
+	readJson(folderpath, filename, &employee)
+	if employee != nil {
+		showData()
+		fmt.Println("---")
+		num_input := numInput("Please input the number to update: ")
+		emp_up := inputData()
+		new_emp := updateData(num_input, emp_up)
+		writeJson(folderpath, filename, new_emp)
+		fmt.Println("Data successfully updated")
+	} else {
+		fmt.Println("No data available")
+	}
+	fmt.Println("---")
+	fmt.Print("Click enter to back to Main Menu")
+	reader := bufio.NewReader(os.Stdin)
+	reader.ReadString('\n')
+	mainMenu()
+}
+
+func deleteMenu() {
+	fmt.Println("######################################################################")
+	fmt.Println("Employee Management System")
+	fmt.Println("---")
+	fmt.Println("*Delete Menu")
+	fmt.Println("---")
+	readJson(folderpath, filename, &employee)
+	if employee != nil {
+		showData()
+		fmt.Println("---")
+		num_input := numInput("Please input the number to update: ")
+		new_emp := deleteData(num_input)
+		writeJson(folderpath, filename, new_emp)
+		fmt.Println("Data successfully deleted")
+	} else {
+		fmt.Println("No data available")
+	}
+	fmt.Println("---")
+	fmt.Print("Click enter to back to Main Menu")
+	reader := bufio.NewReader(os.Stdin)
+	reader.ReadString('\n')
+	mainMenu()
+}
+
+func Project() {
+	os.MkdirAll(folderpath, 0755)
+	mainMenu()
 }

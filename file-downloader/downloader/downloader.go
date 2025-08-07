@@ -70,7 +70,8 @@ func urlInput() {
 	urlin = ""
 
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("Please input the download URL: ")
+	fmt.Println("Input 'process' to download")
+	fmt.Print("Enter the URL: ")
 	urlin_raw, err := reader.ReadString('\n')
 	for err != nil {
 		fmt.Println("Error:", err)
@@ -87,29 +88,45 @@ func Project() {
 	os.MkdirAll(downloadDir, 0755) // Ensure downloads directory exists
 
 	for urlin != "back" && urlin != "process" {
+		fmt.Println("*URL")
+		fmt.Println("---")
+		if len(urlsToDownload) != 0 {
+			i := 1
+			for _, url := range urlsToDownload {
+				fmt.Print(i, ". ", url, "\n")
+				i++
+			}
+		} else {
+			fmt.Println("No URLs to download.")
+		}
+		fmt.Println("---")
 		urlInput()
 
 		switch urlin {
 		case "back":
 			fmt.Println("Exiting...")
 		case "process":
-			for _, url := range urlsToDownload {
-				wg.Add(1) // Increment the WaitGroup counter for each goroutine we are about to launch
+			if len(urlsToDownload) != 0 {
+				for _, url := range urlsToDownload {
+					wg.Add(1) // Increment the WaitGroup counter for each goroutine we are about to launch
 
-				// Launch the downloadFile function as a goroutine
-				// Pass the WaitGroup pointer so the goroutine can signal completion
-				go downloadGo(url, downloadDir, &wg)
+					// Launch the downloadFile function as a goroutine
+					// Pass the WaitGroup pointer so the goroutine can signal completion
+					go downloadGo(url, downloadDir, &wg)
+
+					fmt.Println("\nMain goroutine: All download goroutines launched. Waiting for them to finish...")
+
+					// Block the main goroutine until all launched goroutines have called wg.Done()
+					wg.Wait()
+
+					fmt.Println("\nMain goroutine: All downloads completed. Program finished.")
+				}
+			} else {
+				fmt.Println("No URLs to download.")
 			}
 		default:
 			urlsToDownload = append(urlsToDownload, urlin)
 
 		}
 	}
-
-	fmt.Println("\nMain goroutine: All download goroutines launched. Waiting for them to finish...")
-
-	// Block the main goroutine until all launched goroutines have called wg.Done()
-	wg.Wait()
-
-	fmt.Println("\nMain goroutine: All downloads completed. Program finished.")
 }
